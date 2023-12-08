@@ -1,0 +1,183 @@
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace SpaceWeatherApi.Controllers;
+
+[ApiController]
+[Route("api/v1/weather")]
+public class WeatherController : ControllerBase
+{
+    private readonly List<Planet> _planets;
+
+    public WeatherController()
+    {
+        _planets = new List<Planet>
+        {
+                // Uydusu bulunmayan gezegen
+                new Planet("Venus", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = 100, Condition = "Hot" }, null),
+                new Planet("Mercury", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = 430, Condition = "Scorching", Summary = "No one can live in this temperature" }, null),
+
+                //Uydusu bulunan gezegenler
+                new Planet("Earth", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = 15, Condition = "Mild" }, new List<Satellite>
+                {
+                    new Satellite("Moon", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = 100, Condition = "Hot" }),
+                }),
+
+                new Planet("Mars", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -30, Condition = "Dusty", Summary = "No viewing angle" }, new List<Satellite>
+                {
+                    new Satellite("Phobos", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -130, Condition = "Extreme Cold", Summary = "It's freezing cold" }),
+                    new Satellite("Deimos", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -25, Condition = "Windy"})
+                }),
+
+                new Planet("Jupiter", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -160, Condition = "Stormy", Summary = "The wind is destructive" }, new List<Satellite>
+                {
+                    new Satellite("Io", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -80, Condition = "Stormy"}),
+                    new Satellite("Europa", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -170, Condition = "Cloudy", Summary = "Hail is falling from the clouds" })
+                }),
+
+                new Planet("Saturn", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -185, Condition = "Ringy"}, new List<Satellite>
+                {
+                    new Satellite("Titan", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -185, Condition = "Extreme Cold" }),
+                    new Satellite("Enceladus", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -175, Condition = "Rainy", Summary = "Rains can kill living things" })
+                })
+
+        };
+    }
+
+    //Gezegenlerin verisini okuma
+    [HttpGet("{planetName}")]
+    [ProducesResponseType(typeof(Planet), 200)]
+    public IActionResult GetPlanetWeather(string planetName)
+    {
+        var planet = _planets.FirstOrDefault(g => g.Name.ToLower() == planetName.ToLower());
+
+        if (planet == null)
+        {
+            return NotFound(); // Belirtilen gezegen bulunamadı.
+        }
+
+        return Ok(new { planet.WeatherForecast, planet.Satellites });
+    }
+
+    //Uyduların verisini okuma
+    [HttpGet("{planetName}/{satelliteName}")]
+    public IActionResult GetSatelliteWeather(string planetName, string satelliteName)
+    {
+        var planet = _planets.FirstOrDefault(g => g.Name.ToLower() == planetName.ToLower());
+
+        if (planet == null)
+        {
+            return NotFound(); // Belirtilen gezegen bulunamadı.
+        }
+
+        var satellite = planet.Satellites.FirstOrDefault(u => u.Name.ToLower() == satelliteName.ToLower());
+
+        if (satellite == null)
+        {
+            return NotFound(); // Belirtilen uydu bulunamadı.
+        }
+
+        return Ok(new {Planet = planet.WeatherForecast, Satellite = satellite.WeatherForecast });
+    }
+
+    //Yeni gezegen ekleme
+    [HttpPost]
+    [ProducesResponseType(typeof(Planet), 201)]
+    public IActionResult AddPlanet([FromBody] Planet planet)
+    {
+        _planets.Add(planet);
+        return CreatedAtAction(nameof(GetPlanetWeather), new { planetName = planet.Name }, planet);
+    }
+
+    //Gezegenlerin hava durumunu güncelleme
+    [HttpPut("{planetName}")]
+    public IActionResult UpdatePlanetWeather(string planetName, [FromBody] WeatherForecast newWeatherForecast)
+    {
+        var planet = _planets.FirstOrDefault(g => g.Name.ToLower() == planetName.ToLower());
+
+        if (planet == null)
+        {
+            return NotFound(); // Belirtilen gezegen bulunamadı.
+        }
+
+        planet.WeatherForecast = newWeatherForecast;
+
+        return Ok(new { planet.WeatherForecast, planet.Satellites });
+    }
+
+    //Gezegen hava durumu bilgilerini kısmnen güncelleme
+    [HttpPatch("{planetName}")]
+    public IActionResult PartialUpdatePlanetWeather(string planetName, [FromBody] JsonPatchDocument<WeatherForecast> patch)
+    {
+        var planet = _planets.FirstOrDefault(g => g.Name.ToLower() == planetName.ToLower());
+
+        if (planet == null)
+        {
+            return NotFound(); // Belirtilen gezegen bulunamadı.
+        }
+
+        patch.ApplyTo(planet.WeatherForecast, ModelState);
+
+        return Ok(new { planet.WeatherForecast, planet.Satellites });
+    }
+
+    //Gezegen silme
+    [HttpDelete("{planetName}")]
+    [ProducesResponseType(204)]
+    public IActionResult DeletePlanet(string planetName)
+    {
+        var planet = _planets.FirstOrDefault(g => g.Name.ToLower() == planetName.ToLower());
+
+        if (planet == null)
+        {
+            return NotFound(); // Belirtilen gezegen bulunamadı.
+        }
+
+        _planets.Remove(planet);
+
+        return NoContent();
+    }
+
+    // Gezegenleri sayfalama, filtreleme, sıralama
+    [HttpGet]
+    public IActionResult GetPlanets([FromQuery] int page = 1, [FromQuery] int size = 10, [FromQuery] string sort = null, [FromQuery] string nameFilter = null)
+    {
+        // Sayfalama
+        var paginatedPlanets = _planets.Skip((page - 1) * size).Take(size);
+
+        // Filtreleme (örnek: isme göre filtreleme)
+        if (!string.IsNullOrEmpty(nameFilter))
+        {
+            paginatedPlanets = paginatedPlanets.Where(p => p.Name.Contains(nameFilter, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Sıralama
+        if (!string.IsNullOrEmpty(sort))
+        {
+            var sortParams = sort.Split(',');
+            if (sortParams.Length == 2)
+            {
+                var sortField = sortParams[0];
+                var isAscending = sortParams[1].ToLower() == "asc";
+
+                paginatedPlanets = SortPlanets(paginatedPlanets, sortField, isAscending);
+            }
+        }
+
+        return Ok(paginatedPlanets);
+    }
+
+    private IEnumerable<Planet> SortPlanets(IEnumerable<Planet> planets, string field, bool isAscending)
+    {
+        switch (field.ToLower())
+        {
+            case "name":
+                return isAscending ? planets.OrderBy(p => p.Name) : planets.OrderByDescending(p => p.Name);
+            default:
+                return planets;
+        }
+    }
+}
