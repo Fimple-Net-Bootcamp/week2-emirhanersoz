@@ -16,32 +16,32 @@ public class WeatherController : ControllerBase
     {
         _planets = new List<Planet>
         {
-                // Uydusu bulunmayan gezegen
-                new Planet("Venus", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = 100, Condition = "Hot" }, null),
-                new Planet("Mercury", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = 430, Condition = "Scorching", Summary = "No one can live in this temperature" }, null),
+                // Uydusu bulunmayan gezegenler
+                new Planet("Venus", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = 100, Condition = Enum.WeatherCondition.Cloudy }, null),
+                new Planet("Mercury", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = 430, Condition = Enum.WeatherCondition.ExtremeHeat, Summary = "No one can live in this temperature" }, null),
 
                 //Uydusu bulunan gezegenler
-                new Planet("Earth", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = 15, Condition = "Mild" }, new List<Satellite>
+                new Planet("Earth", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = 15, Condition = Enum.WeatherCondition.Mild }, new List<Satellite>
                 {
-                    new Satellite("Moon", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = 100, Condition = "Hot" }),
+                    new Satellite("Moon", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = 100, Condition = Enum.WeatherCondition.Stormy }),
                 }),
 
-                new Planet("Mars", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -30, Condition = "Dusty", Summary = "No viewing angle" }, new List<Satellite>
+                new Planet("Mars", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -30, Condition = Enum.WeatherCondition.Mild, Summary = "No viewing angle" }, new List<Satellite>
                 {
-                    new Satellite("Phobos", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -130, Condition = "Extreme Cold", Summary = "It's freezing cold" }),
-                    new Satellite("Deimos", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -25, Condition = "Windy"})
+                    new Satellite("Phobos", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -130, Condition = Enum.WeatherCondition.Scorching, Summary = "It's freezing cold" }),
+                    new Satellite("Deimos", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -25, Condition = Enum.WeatherCondition.Windy})
                 }),
 
-                new Planet("Jupiter", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -160, Condition = "Stormy", Summary = "The wind is destructive" }, new List<Satellite>
+                new Planet("Jupiter", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -160, Condition = Enum.WeatherCondition.Stormy, Summary = "The wind is destructive" }, new List<Satellite>
                 {
-                    new Satellite("Io", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -80, Condition = "Stormy"}),
-                    new Satellite("Europa", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -170, Condition = "Cloudy", Summary = "Hail is falling from the clouds" })
+                    new Satellite("Io", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -80, Condition = Enum.WeatherCondition.Stormy}),
+                    new Satellite("Europa", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -170, Condition = Enum.WeatherCondition.Ringy, Summary = "Hail is falling from the clouds" })
                 }),
 
-                new Planet("Saturn", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -185, Condition = "Ringy"}, new List<Satellite>
+                new Planet("Saturn", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -185, Condition = Enum.WeatherCondition.Windy}, new List<Satellite>
                 {
-                    new Satellite("Titan", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -185, Condition = "Extreme Cold" }),
-                    new Satellite("Enceladus", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -175, Condition = "Rainy", Summary = "Rains can kill living things" })
+                    new Satellite("Titan", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -185, Condition = Enum.WeatherCondition.Scorching}),
+                    new Satellite("Enceladus", new WeatherForecast { Date = new DateOnly(2023, 12, 8), TemperatureC = -175, Condition = Enum.WeatherCondition.ExtremeCold, Summary = "Rains can kill living things" })
                 })
 
         };

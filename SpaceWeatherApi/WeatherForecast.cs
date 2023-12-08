@@ -1,3 +1,5 @@
+using SpaceWeatherApi.Enum;
+
 namespace SpaceWeatherApi
 {
     public class WeatherForecast
@@ -7,7 +9,7 @@ namespace SpaceWeatherApi
         public int TemperatureC { get; set; }
 
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-        public string Condition { get; set; }
+        public WeatherCondition Condition { get; set; } = WeatherCondition.Unknown;
 
         public string? Summary { get; set; }
     }

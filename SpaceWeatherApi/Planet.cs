@@ -1,4 +1,6 @@
-﻿namespace SpaceWeatherApi;
+﻿using SpaceWeatherApi.Enum;
+
+namespace SpaceWeatherApi;
 
 public class Planet
 {
